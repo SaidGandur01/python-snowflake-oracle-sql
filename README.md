@@ -14,7 +14,21 @@ python auto_reload.py
 "connectorName": "Snowflake"
 }
 
-# Considerations for snowflake
+### Considerations for snowflake
 
-The url account usually has this format: https://123456.us-east-1.snowflakecomputing.com/
-this means the account is 123456
+- The url account usually has this format: https://123456.us-east-1.snowflakecomputing.com/this means the account is 123456
+
+### Considerations for mysql
+
+- It's necessary to add in the request the host like this:
+
+{
+"username": "root",
+"password": "root",
+"account": "",
+"warehouse": "",
+"database": "databasename",
+"schema": "",
+"host": "127.0.0.1"
+"connectorName": "mysql",
+}

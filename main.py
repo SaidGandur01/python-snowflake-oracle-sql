@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from connectors.snowflake import snowflake_ops
+from connectors.mysql import mysql_ops
 import json
 
 class MainServer(BaseHTTPRequestHandler):
@@ -26,10 +27,10 @@ class MainServer(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def handle_segregate_database(self, data):
-        if data['connectorName'].lower() == 'snowflake':
+        connector = data['connectorName'].lower()
+        if connector == 'snowflake':
             self._set_response()
             conn = snowflake_ops.connect_to_snowflake(data['username'], data['password'], data['account'], data['warehouse'], data['database'], data['schema'])
-
             if conn is None:
                 response = {'error': 'Failed to connect to Snowflake'}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
@@ -43,6 +44,24 @@ class MainServer(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             else:
                 response = {data['schema']: table_data}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+
+        elif connector == 'mysql':
+            self._set_response()
+            conn = mysql_ops.connect_to_mysql(data['username'], data['password'], data['host'], data['database'])
+            if conn is None:
+                response = {'error': 'Failed to connect to MySQL'}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+
+            table_data, error = mysql_ops.get_tables_and_columns(conn, data['database'])
+            mysql_ops.close_connection(conn)
+
+            if error:
+                response = {'error': 'Query failed', 'details': error}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                response = {data['database']: table_data}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
 
         else:
