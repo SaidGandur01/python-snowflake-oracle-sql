@@ -7,7 +7,7 @@ python auto_reload.py
 {
 "username": "username",
 "password": "password",
-"account": "", # The account is usually found in
+"account": "",
 "warehouse": "warehouse",
 "database": "database",
 "schema": "schema",
